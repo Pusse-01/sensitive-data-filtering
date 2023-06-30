@@ -1,13 +1,13 @@
 import streamlit as st
 import os
-from utils import scan_text, scan_text_spacy
+from utils import scan_text_spacy
 from streamlit_option_menu import option_menu
 import openai
 
 
 
 os.environ['NIGHTFALL_API_KEY'] = ('NF-9GTREeQ651oJNXaBAksgdDGCC9cUWbBc')
-os.environ['OPENAI_API_KEY'] = ('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')
+os.environ['OPENAI_API_KEY'] = ('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')
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def scan_text_page():
