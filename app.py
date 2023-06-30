@@ -14,6 +14,10 @@ def scan_text_page():
     st.title("Scan Text")
     text = st.text_input("Enter your text:")
     submit = st.button("Submit")
+    if not openai_api_key:
+            st.info("Please add your OpenAI API key to continue.")
+            st.stop()
+    os.environ['OPENAI_API_KEY'] = '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'
     if submit and text:
         if not openai_api_key:
             st.info("Please add your OpenAI API key to continue.")
