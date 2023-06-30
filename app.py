@@ -6,15 +6,20 @@ import openai
 
 
 
-os.environ['NIGHTFALL_API_KEY'] = ('NF-9GTREeQ651oJNXaBAksgdDGCC9cUWbBc')
-os.environ['OPENAI_API_KEY'] = ('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')
-openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# os.environ['OPENAI_API_KEY'] = ('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')
+# openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def scan_text_page():
     st.title("Scan Text")
     text = st.text_input("Enter your text:")
     submit = st.button("Submit")
     if submit and text:
+        if not openai_api_key:
+            st.info("Please add your OpenAI API key to continue.")
+            st.stop()
+        os.environ['OPENAI_API_KEY'] = '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'
+
         findings = scan_text_spacy(text)
         # st.write("Filtered Text:")
         # st.write(findings)
@@ -52,6 +57,7 @@ def scan_files_page():
 
 # 1. as sidebar menu
 with st.sidebar:
+    openai_api_key = st.text_input("OpenAI API Key", key="chatbot_api_key", type="password")
     selected = option_menu("Menu", ["Scan Text", 'Scan Files'], 
         icons=['file-text', 'folder'], menu_icon="cast", default_index=1)
 # selected
