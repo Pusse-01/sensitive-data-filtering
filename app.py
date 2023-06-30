@@ -10,19 +10,16 @@ import openai
 # os.environ['OPENAI_API_KEY'] = ('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')
 # openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def scan_text_page():
+def scan_text_page(openai_api_key):
     st.title("Scan Text")
     text = st.text_input("Enter your text:")
     submit = st.button("Submit")
-    if not openai_api_key:
-            st.info("Please add your OpenAI API key to continue.")
-            st.stop()
-    os.environ['OPENAI_API_KEY'] = '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'
+    
     if submit and text:
         if not openai_api_key:
             st.info("Please add your OpenAI API key to continue.")
             st.stop()
-        os.environ['OPENAI_API_KEY'] = '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'
+        os.environ['OPENAI_API_KEY'] = openai_api_key
 
         findings = scan_text_spacy(text)
         # st.write("Filtered Text:")
@@ -66,47 +63,6 @@ with st.sidebar:
         icons=['file-text', 'folder'], menu_icon="cast", default_index=1)
 # selected
 if selected == "Scan Text":
-    scan_text_page()
+    scan_text_page(openai_api_key)
 elif selected == "Scan Files":
     scan_files_page()
-
-# # 2. horizontal menu
-# selected2 = option_menu(None, ["Home", "Upload", "Tasks", 'Settings'], 
-#     icons=['house', 'cloud-upload', "list-task", 'gear'], 
-#     menu_icon="cast", default_index=0, orientation="horizontal")
-# selected2
-
-# # 3. CSS style definitions
-# selected3 = option_menu(None, ["Home", "Upload",  "Tasks", 'Settings'], 
-#     icons=['house', 'cloud-upload', "list-task", 'gear'], 
-#     menu_icon="cast", default_index=0, orientation="horizontal",
-#     styles={
-#         "container": {"padding": "0!important", "background-color": "#fafafa"},
-#         "icon": {"color": "orange", "font-size": "25px"}, 
-#         "nav-link": {"font-size": "25px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
-#         "nav-link-selected": {"background-color": "green"},
-#     }
-# )
-
-# # 4. Manual Item Selection
-# if st.session_state.get('switch_button', False):
-#     st.session_state['menu_option'] = (st.session_state.get('menu_option',0) + 1) % 4
-#     manual_select = st.session_state['menu_option']
-# else:
-#     manual_select = None
-    
-# selected4 = option_menu(None, ["Home", "Upload", "Tasks", 'Settings'], 
-#     icons=['house', 'cloud-upload', "list-task", 'gear'], 
-#     orientation="horizontal", manual_select=manual_select, key='menu_4')
-# st.button(f"Move to Next {st.session_state.get('menu_option',1)}", key='switch_button')
-# selected4
-
-# 5. Add on_change callback
-# def on_change(key):
-#     selection = st.session_state[key]
-#     st.write(f"Selection changed to {selection}")
-    
-# selected5 = option_menu(None, ["Home", "Upload", "Tasks", 'Settings'],
-#                         icons=['house', 'cloud-upload', "list-task", 'gear'],
-#                         on_change=on_change, key='menu_5', orientation="horizontal")
-# selected5
