@@ -6,12 +6,14 @@ import re
 import spacy
 
 def redact_money(text):
+    # print(text)
     # Regular expression pattern to match money amounts
-    pattern = r'(?i)\b(?:\d+(?:[.,]\d+)?\s*(?:million|billion)?\s*(?:dollars|euros|rupees|rs|lkr|rs.)|(?:dollars|euros|rupees|rs|lkr|rs.)\s*\d+(?:[.,]\d+)?)\b'
+    # pattern = r'(?i)\b(?:\d+(?:[.,]\d+)?\s*(?:million|billion)?\s*(?:dollars|euros|rupees|rs|lkr|rs.)|(?:dollars|euros|rupees|rs|lkr|rs.)\s*\d+(?:[.,]\d+)?)\b'
+    pattern = r'(?i)(?:\$?\s*)?\b(?:\d+(?:[.,]\d+)?\s*(?:mn | bn | million|billion)?\s*(?:dollars|euros|rupees|rs|lkr|rs.)|(?:dollars|euros|rupees|rs|lkr|rs.)\s*\d+(?:[.,]\d+)?)\b'
 
     # Find all matches of the pattern in the text
     matches = re.findall(pattern, text)
-
+    # print(matches)
     # Redact the matches in the text
     redacted_text = text
     for match in matches:
