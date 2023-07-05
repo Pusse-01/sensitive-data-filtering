@@ -5,10 +5,10 @@ from streamlit_option_menu import option_menu
 import openai
 
 
-with st.sidebar:
-    openai_api_key = st.text_input("OpenAI API Key", key="chatbot_api_key", type="password")
-    selected = option_menu("Menu", ["Scan Text", 'Scan Files'], 
-        icons=['file-text', 'folder'], menu_icon="cast", default_index=1)
+
+
+os.environ['OPENAI_API_KEY'] = st.secrets["key"]
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def scan_text_page():
     st.title("Scan Text")
@@ -16,10 +16,10 @@ def scan_text_page():
     submit = st.button("Submit")
     
     if submit and text:
-        if not openai_api_key:
-            st.info("Please add your OpenAI API key to continue.")
-            st.stop()
-        os.environ['OPENAI_API_KEY'] = openai_api_key
+        # if not openai_api_key:
+        #     st.info("Please add your OpenAI API key to continue.")
+        #     st.stop()
+        # os.environ['OPENAI_API_KEY'] = openai_api_key
 
         findings = scan_text_spacy(text)
         # st.write("Filtered Text:")
@@ -68,7 +68,10 @@ def scan_files_page():
     st.write("Scan Files Page")
 
 # 1. as sidebar menu
-
+with st.sidebar:
+    # openai_api_key = st.text_input("OpenAI API Key", key="chatbot_api_key", type="password")
+    selected = option_menu("Menu", ["Scan Text", 'Scan Files'], 
+        icons=['file-text', 'folder'], menu_icon="cast", default_index=1)
 # selected
 if selected == "Scan Text":
     scan_text_page()
