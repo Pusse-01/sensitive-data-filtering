@@ -5,6 +5,7 @@ from presidio_anonymizer import AnonymizerEngine
 import re
 import spacy
 
+
 def redact_money(text):
     # print(text)
     # Regular expression pattern to match money amounts
@@ -113,6 +114,23 @@ class MyFinancialRecognizer(LocalRecognizer):
 
 #     return(anonymized_text)
 
+def replace_organization_names(text):
+    # Load the English language model in spaCy
+    nlp = spacy.load('en_core_web_sm')
+    
+    # Process the input text
+    doc = nlp(text)
+    
+    # Iterate over the named entities in the document
+    for ent in doc.ents:
+        if ent.label_ == 'ORG':
+            # Replace organization names with [ORG]
+            text = text.replace(ent.text, '[ORG]')
+    
+    return text
+
+
+
 def scan_text_spacy(text):
     # Set up the analyzer engine and registry
     analyzer = AnalyzerEngine()
@@ -155,5 +173,6 @@ def scan_text_spacy(text):
     anonymizer = AnonymizerEngine()
     anonymized_text = anonymizer.anonymize(text=text, analyzer_results=results)
     anonymized_text.text = redact_money(anonymized_text.text)
+    anonymized_text.text = replace_organization_names(anonymized_text.text)
     return anonymized_text
 
