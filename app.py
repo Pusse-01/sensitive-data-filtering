@@ -7,7 +7,7 @@ import openai
 
 
 
-os.environ['OPENAI_API_KEY'] = st.secrets["key"]
+os.environ['OPENAI_API_KEY'] = "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"
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def scan_text_page():
@@ -29,13 +29,13 @@ def scan_text_page():
 
         # Send prompt to OpenAI model for AI-generated response
         completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4-0613",
         messages=[
             {"role": "user", "content": findings.text}
         ]
         )
         completion2 = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4-0613",
         messages=[
             {"role": "user", "content": text}
         ]

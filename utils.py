@@ -1,5 +1,6 @@
 # from nightfall import Confidence, RedactionConfig, DetectionRule, Detector, Nightfall
 import os
+import presidio_analyzer
 from presidio_analyzer import AnalyzerEngine, LocalRecognizer, RecognizerResult
 from presidio_anonymizer import AnonymizerEngine
 import re
@@ -75,44 +76,28 @@ class MyFinancialRecognizer(LocalRecognizer):
 
         return results
 
+import re
 
-# def scan_text_spacy(text):
-#     # Set up the engine, loads the NLP module (spaCy model by default) 
-#     # and other PII recognizers
-#     analyzer = AnalyzerEngine()
+def replace_race_tags(text):
+    ethnicity_keywords = {
+        'African': ['akan', 'amhara', 'ashanti', 'bantu', 'berber', 'igbo', 'khoisan', 'somali', 'yoruba', 'zulu'],
+        'Asian': ['bengali', 'chinese', 'filipino', 'gujarati', 'japanese', 'korean', 'malay', 'punjabi', 'tamil', 'vietnamese'],
+        'European': ['english', 'french', 'german', 'greek', 'irish', 'italian', 'polish', 'russian', 'spanish', 'swedish'],
+        'Indigenous': ['aboriginal', 'inuit', 'maori', 'native american', 'sami', 'torres strait islander', 'xhosa'],
+        'Middle Eastern': ['arab', 'assyrian', 'iranian', 'jewish', 'kurdish', 'pashtun', 'persian', 'turkish', 'yazidi'],
+        'Native American': ['apache', 'cherokee', 'choctaw', 'hopi', 'inca', 'iroquois', 'navajo', 'sioux', 'yaqui'],
+        'Pacific Islander': ['fijian', 'hawaiian', 'maori', 'papua new guinean', 'polynesian', 'samoan', 'tongan', 'tuvaluan'],
+        'South American': ['andean', 'guarani', 'inca', 'mapuche', 'quechua', 'wayuu', 'yanomami']
+    }
 
-#     # Call analyzer to get results
-#     results = analyzer.analyze(text=text,
-#                             entities=[
-#                             "PHONE_NUMBER",
-#                             # "US_DRIVER_LICENSE",
-#                             # "US_PASSPORT",
-#                             "LOCATION",
-#                             "CREDIT_CARD",
-#                             # "CRYPTO",
-#                             # "UK_NHS",
-#                             # "US_SSN",
-#                             "US_BANK_NUMBER",
-#                             "EMAIL_ADDRESS",
-#                             # "DATE_TIME",
-#                             # "IP_ADDRESS",
-#                             "PERSON",
-#                             # "IBAN_CODE",
-#                             "NRP",
-#                             # "US_ITIN",
-#                             # "MEDICAL_LICENSE",
-#                             "URL"
-#                             ],
-#                             language='en')
-#     print(results)
+    for ethnicity, keywords in ethnicity_keywords.items():
+        for keyword in keywords:
+            pattern = r'\b{}\b'.format(keyword)
+            text = re.sub(pattern, '[RACE]', text, flags=re.IGNORECASE)
 
-#     # Analyzer results are passed to the AnonymizerEngine for anonymization
+    return text
 
-#     anonymizer = AnonymizerEngine()
 
-#     anonymized_text = anonymizer.anonymize(text=text,analyzer_results=results)
-
-#     return(anonymized_text)
 
 def replace_organization_names(text):
     # Load the English language model in spaCy
@@ -129,7 +114,37 @@ def replace_organization_names(text):
     
     return text
 
+def replace_addresses_with_tag(text):
+    # Load the English language model in spaCy
+    nlp = spacy.load("en_core_web_sm")
+    
+    # Define a regular expression pattern to match addresses
+    address_pattern = r"\d+\s+\w+\s+\w+|P\.?O\.?\s+Box\s+\d+"
+    
+    # Apply spaCy's NLP pipeline to the input text
+    doc = nlp(text)
+    
+    # Find addresses using regular expressions and replace them with [ADDRESS] tag
+    modified_text = re.sub(address_pattern, "[ADDRESS]", doc.text)
+    
+    return modified_text
 
+def detect_sexual_orientation(text):
+    # Define a list of words related to sexual orientation
+    sexual_orientation_words = ['gay', 'lesbian', 'homosexual', 'heterosexual', 'bisexual', 'pansexual', 'queer', 'transgender']
+    
+    # Create a regular expression pattern to match the words (case-insensitive)
+    pattern = re.compile(r'\b(?:' + '|'.join(sexual_orientation_words) + r')\b', re.IGNORECASE)
+    
+    # Replace the words with [SO]
+    modified_text = pattern.sub('[SO]', text)
+    
+    return modified_text
+
+def anonymize_user_credentials(text): 
+    text = re.sub(r"(username: | \"username\":)\s*\S+", r"\1 [USERNAME]", text, flags=re.I) 
+    text = re.sub(r"(password: | \"password\":)\s*\S+", r"\1 [PASSWORD]", text, flags=re.I) 
+    return text 
 
 def scan_text_spacy(text):
     # Set up the analyzer engine and registry
@@ -148,7 +163,7 @@ def scan_text_spacy(text):
         entities=[
                             "PHONE_NUMBER",
                             # "US_DRIVER_LICENSE",
-                            # "US_PASSPORT",
+                            "US_PASSPORT",
                             "LOCATION",
                             "CREDIT_CARD",
                             # "CRYPTO",
@@ -156,8 +171,8 @@ def scan_text_spacy(text):
                             # "US_SSN",
                             "US_BANK_NUMBER",
                             "EMAIL_ADDRESS",
-                            # "DATE_TIME",
-                            # "IP_ADDRESS",
+                            "DATE_TIME",
+                            "IP_ADDRESS",
                             "PERSON",
                             # "IBAN_CODE",
                             "NRP",
@@ -174,5 +189,9 @@ def scan_text_spacy(text):
     anonymized_text = anonymizer.anonymize(text=text, analyzer_results=results)
     anonymized_text.text = redact_money(anonymized_text.text)
     anonymized_text.text = replace_organization_names(anonymized_text.text)
+    anonymized_text.text = replace_race_tags(anonymized_text.text)
+    anonymized_text.text = replace_addresses_with_tag(anonymized_text.text)
+    anonymized_text.text = detect_sexual_orientation(anonymized_text.text)
+    anonymized_text.text = anonymize_user_credentials(anonymized_text.text) 
     return anonymized_text
 
