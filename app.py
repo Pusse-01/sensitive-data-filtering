@@ -7,7 +7,7 @@ import openai
 
 
 
-os.environ['OPENAI_API_KEY'] = "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"
+os.environ['OPENAI_API_KEY'] = st.secrets["key"]
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def scan_text_page():
