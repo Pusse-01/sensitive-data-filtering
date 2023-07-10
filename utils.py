@@ -142,8 +142,8 @@ def detect_sexual_orientation(text):
     return modified_text
 
 def anonymize_user_credentials(text): 
-    text = re.sub(r"(username: | \"username\":)\s*\S+", r"\1 [USERNAME]", text, flags=re.I) 
-    text = re.sub(r"(password: | \"password\":)\s*\S+", r"\1 [PASSWORD]", text, flags=re.I) 
+    text = re.sub(r"(username: | \"username\": | \"username\"=)\s*\S+", r"\1 [USERNAME]", text, flags=re.I) 
+    text = re.sub(r"(password: | \"password\": | \"password\"=)\s*\S+", r"\1 [PASSWORD]", text, flags=re.I) 
     return text 
 
 def scan_text_spacy(text):
